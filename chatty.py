@@ -16,18 +16,19 @@ openai.api_key = api_key
 
 def translate_text(text, target_language):
     """
-    Function to translate text to the target language using ChatGPT.
+    Function to translate text to the target language using GPT-3.
     Note: This is a simple translation function.
     """
     try:
-        response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {"role": "system", "content": f"You are a translator. Translate the following text to {target_language}."},
-                {"role": "user", "content": text}
-            ]
+        response = openai.Completion.create(
+            model="text-davinci-003",
+            prompt=f"Translate the following text to {target_language}:\n\n{text}",
+            max_tokens=500,
+            n=1,
+            stop=None,
+            temperature=0.5,
         )
-        translated_text = response['choices'][0]['message']['content'].strip()
+        translated_text = response.choices[0].text.strip()
         return translated_text
     except Exception as e:
         print(f"Error in translation: {e}")
@@ -35,21 +36,22 @@ def translate_text(text, target_language):
 
 def chat_with_gpt3(user_input, language="en"):
     """
-    Function to chat with GPT-3.5.
+    Function to chat with GPT-3.
     """
     try:
         if language != "en":
             user_input = translate_text(user_input, "English")
 
-        response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {"role": "system", "content": "You are a helpful assistant."},
-                {"role": "user", "content": user_input}
-            ]
+        response = openai.Completion.create(
+            model="text-davinci-003",
+            prompt=f"You are a helpful assistant.\n\n{user_input}",
+            max_tokens=500,
+            n=1,
+            stop=None,
+            temperature=0.5,
         )
         
-        chatbot_response = response['choices'][0]['message']['content'].strip()
+        chatbot_response = response.choices[0].text.strip()
 
         if language != "en":
             chatbot_response = translate_text(chatbot_response, language)
