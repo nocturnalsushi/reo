@@ -1,83 +1,54 @@
-import openai
-import os
-from dotenv import load_dotenv
+import requests
 
-# Load environment variables from .env file
-load_dotenv()
+# Define the API key and endpoint
+api_key = "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"
+url = "https://api.groq.com/openai/v1/chat/completions"
 
-# Load your OpenAI API key from an environment variable
-api_key = os.getenv("OPENAI_API_KEY")
+# Set the request headers
+headers = {
+    "Authorization": f"Bearer {api_key}",
+    "Content-Type": "application/json"
+}
 
-if not api_key:
-    print("Error: OpenAI API key not found. Please set it in the .env file.")
-    exit()
+def generate_response(user_message):
+    # Prepare the data payload
+    data = {
+        "model": "llama3-8b-8192",
+        "messages": [
+            {
+                "role": "system",
+                "content": "You're a multilingual chatbot that assesses the user's language and asks if your understanding is correct. Following which you speak in their initial language and give a fun fact regarding their chosen one and ask if the user would like to learn the language interactively with you. Please be a teacher from then onwards and encourage the user to ask pronunciations, spellings, etc."
+            },
+            {
+                "role": "user",
+                "content": user_message
+            }
+        ],
+        "temperature": 1,
+        "max_tokens": 1024,
+        "top_p": 1,
+        "stream": False
+    }
 
-openai.api_key = api_key
+    # Make the API request
+    response = requests.post(url, headers=headers, json=data)
+    return response.json()
 
-def translate_text(text, target_language):
-    """
-    Function to translate text to the target language using GPT-3.
-    Note: This is a simple translation function.
-    """
-    try:
-        response = openai.Completion.create(
-            model="text-davinci-003",
-            prompt=f"Translate the following text to {target_language}:\n\n{text}",
-            max_tokens=500,
-            n=1,
-            stop=None,
-            temperature=0.5,
-        )
-        translated_text = response.choices[0].text.strip()
-        return translated_text
-    except Exception as e:
-        print(f"Error in translation: {e}")
-        return "Translation error."
-
-def chat_with_gpt3(user_input, language="en"):
-    """
-    Function to chat with GPT-3.
-    """
-    try:
-        if language != "en":
-            user_input = translate_text(user_input, "English")
-
-        response = openai.Completion.create(
-            model="text-davinci-003",
-            prompt=f"You are a helpful assistant.\n\n{user_input}",
-            max_tokens=500,
-            n=1,
-            stop=None,
-            temperature=0.5,
-        )
-        
-        chatbot_response = response.choices[0].text.strip()
-
-        if language != "en":
-            chatbot_response = translate_text(chatbot_response, language)
-        
-        return chatbot_response
-    except Exception as e:
-        print(f"Error in chat: {e}")
-        return "Chat error."
-
-if __name__ == "__main__":
-    print("Multilingual Chatbot is running...")
-
+def main():
+    print("Welcome to the Groq Multilingual Chatbot!")
     while True:
-        try:
-            user_input = input("You: ")
-            if user_input.lower() == "quit":
-                break
-            
-            language = input("Language (e.g., en, es, fr): ").strip()
-            if not language:
-                language = "en"
-
-            response = chat_with_gpt3(user_input, language)
-            print(f"Bot: {response}")
-        except KeyboardInterrupt:
-            print("\nExiting the chatbot.")
+        user_message = input("You: ")
+        if user_message.lower() in ['exit', 'quit']:
+            print("Goodbye!")
             break
-        except Exception as e:
-            print(f"An unexpected error occurred: {e}")
+
+        response = generate_response(user_message)
+        try:
+            assistant_message = response['choices'][0]['message']['content']
+            print(f"Groq: {assistant_message}")
+        except (KeyError, IndexError):
+            print("Error: Unable to fetch response from Groq API.")
+            print("Response:", response)
+
+if __name__ == '__main__':
+    main()
