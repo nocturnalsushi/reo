@@ -30,8 +30,9 @@ Follow these instructions to get a copy of the project up and running on your lo
 3. Set up environmental variable:
    - Create a `.env` file in the same directory as your `rio.py` file
    - Replace `your_api_key` with your actual API key that was obtained earlier and paste this in the `.env` file.
-     
-       ```sh
+   
+      ```
        GROQ_API_KEY=your_groq_api_key_here
+      ```
 
 4. Open rio.py and have a happy learning session!
