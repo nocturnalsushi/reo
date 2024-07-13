@@ -2,12 +2,16 @@ from flask import Flask, request, jsonify
 import requests
 from dotenv import load_dotenv
 import os
+import logging
 
 # Load environment variables
 load_dotenv()
 
 # Initialize Flask app
 app = Flask(__name__, static_url_path='', static_folder='static')
+
+# Set up logging
+logging.basicConfig(level=logging.DEBUG)
 
 # Groq API key and URL
 api_key = os.getenv("GROQ_API_KEY")
@@ -39,7 +43,10 @@ def generate_response(user_message, history):
         "stream": False
     }
 
+    logging.debug(f"Sending request to Groq API with data: {data}")
+
     response = requests.post(url, headers=headers, json=data)
+    logging.debug(f"Response received from Groq API: {response.json()}")
     return response.json()
 
 # Define the chat endpoint
@@ -47,6 +54,7 @@ def generate_response(user_message, history):
 def chat():
     user_message = request.json.get('message')
     history = request.json.get('history', [])
+    logging.debug(f"Received message: {user_message} with history: {history}")
     response = generate_response(user_message, history)
     return jsonify(response)
 
