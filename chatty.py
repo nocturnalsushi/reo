@@ -35,7 +35,7 @@ def generate_response(user_message):
     return response.json()
 
 def main():
-    print("Welcome to the Groq Multilingual Chatbot!")
+    print("Welcome to the Rio, a multilingual chatbot & teacher!")
     while True:
         user_message = input("You: ")
         if user_message.lower() in ['exit', 'quit']:
@@ -45,7 +45,7 @@ def main():
         response = generate_response(user_message)
         try:
             assistant_message = response['choices'][0]['message']['content']
-            print(f"Groq: {assistant_message}")
+            print(f"Rio: {assistant_message}")
         except (KeyError, IndexError):
             print("Error: Unable to fetch response from Groq API.")
             print("Response:", response)
