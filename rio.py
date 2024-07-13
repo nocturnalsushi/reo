@@ -7,7 +7,7 @@ import os
 load_dotenv()
 
 # Initialize Flask app
-app = Flask(__name__)
+app = Flask(__name__, static_url_path='', static_folder='static')
 
 # Groq API key and URL
 api_key = os.getenv("GROQ_API_KEY")
