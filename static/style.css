@@ -1,0 +1,42 @@
+/* General body styles */
+body {
+    background-color: #f8f9fa;
+    background-image: url('your-background-image.jpg'); /* Replace with your image URL */
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+}
+
+/* Container for the chat interface */
+.chat-container {
+    max-width: 800px; /* Increased the width */
+    margin: 50px auto;
+    background: rgba(255, 255, 255, 0.9); /* Slightly transparent background */
+    padding: 20px;
+    border-radius: 10px;
+}
+
+/* Chatbox styles */
+.chat-box {
+    height: 450px; /* Increased the height */
+    overflow-y: scroll;
+    background: white;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+/* Input area for user messages */
+.chat-input {
+    margin-top: 15px;
+}
+
+/* Input field styles */
+.chat-input input {
+    height: 50px; /* Increased the input height */
+}
+
+/* Send button styles */
+.chat-input button {
+    height: 50px; /* Match the input field height */
+}
