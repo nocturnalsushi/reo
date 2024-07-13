@@ -4,65 +4,75 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rio Chatbot</title>
-    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body { background-color: #f8f9fa; }
-        .chat-container { max-width: 600px; margin: 50px auto; }
-        .chat-box { height: 400px; overflow-y: scroll; background: white; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
-        .chat-input { margin-top: 15px; }
+        body { font-family: Arial, sans-serif; }
+        #chatbox { border: 1px solid #ccc; padding: 10px; height: 400px; overflow-y: scroll; }
+        #user-input { width: 80%; }
+        #send-btn { width: 18%; }
+        .message { margin: 10px 0; }
+        .message.user { text-align: right; }
+        .message.bot { text-align: left; }
+        .message.bot p { margin: 0; }
     </style>
 </head>
 <body>
-    <div class="container chat-container">
-        <div class="chat-box" id="chat-box"></div>
-        <div class="chat-input">
-            <input type="text" id="user-input" class="form-control" placeholder="Type a message...">
-            <button class="btn btn-primary mt-2" onclick="sendMessage()">Send</button>
-        </div>
-    </div>
+    <div id="chatbox"></div>
+    <input type="text" id="user-input" placeholder="Type your message here...">
+    <button id="send-btn">Send</button>
+
     <script>
-        const history = [];
+        document.getElementById('send-btn').addEventListener('click', sendMessage);
 
-        async function sendMessage() {
+        function sendMessage() {
             const userInput = document.getElementById('user-input').value;
-            if (!userInput.trim()) return;
+            if (!userInput) return;
 
-            const chatBox = document.getElementById('chat-box');
-            const userMessage = `<div class="text-right mb-2"><strong>You:</strong> ${userInput}</div>`;
-            chatBox.innerHTML += userMessage;
+            addMessageToChatbox(userInput, 'user');
 
-            history.push({ role: 'user', content: userInput });
-            console.log('Sending message to backend:', userInput);
-
-            try {
-                const response = await fetch('/chat', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message: userInput, history: history })
-                });
-
-                console.log('Response received from backend:', response);
-
-                if (response.ok) {
-                    const data = await response.json();
-                    const botMessageContent = data.choices[0].message.content;
-                    const botMessage = `<div class="text-left mb-2"><strong>Rio:</strong> ${botMessageContent}</div>`;
-                    chatBox.innerHTML += botMessage;
-
-                    history.push({ role: 'assistant', content: botMessageContent });
+            fetch('/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: userInput, history: getChatHistory() })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message) {
+                    addMessageToChatbox(data.message, 'bot', true);
                 } else {
-                    console.error('Error response from backend:', response.status, response.statusText);
-                    const errorMessage = `<div class="text-left mb-2"><strong>Rio:</strong> Sorry, there was an error processing your request.</div>`;
-                    chatBox.innerHTML += errorMessage;
+                    console.error('Error:', data.error);
                 }
-            } catch (error) {
-                console.error('Error sending message to backend:', error);
-                const errorMessage = `<div class="text-left mb-2"><strong>Rio:</strong> Sorry, there was an error processing your request.</div>`;
-                chatBox.innerHTML += errorMessage;
+            })
+            .catch(error => console.error('Error:', error));
+
+            document.getElementById('user-input').value = '';
+        }
+
+        function addMessageToChatbox(message, sender, isHtml = false) {
+            const chatbox = document.getElementById('chatbox');
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message', sender);
+
+            if (isHtml) {
+                messageDiv.innerHTML = message;
+            } else {
+                messageDiv.textContent = message;
             }
 
-            chatBox.scrollTop = chatBox.scrollHeight;
-            document.getElementById('user-input').value = '';
+            chatbox.appendChild(messageDiv);
+            chatbox.scrollTop = chatbox.scrollHeight;
+        }
+
+        function getChatHistory() {
+            const messages = document.querySelectorAll('.message');
+            const history = [];
+
+            messages.forEach(message => {
+                const role = message.classList.contains('user') ? 'user' : 'assistant';
+                const content = message.classList.contains('bot') ? message.innerHTML : message.textContent;
+                history.push({ role, content });
+            });
+
+            return history;
         }
     </script>
 </body>
