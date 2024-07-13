@@ -11,6 +11,7 @@
         .chat-box { height: 400px; overflow-y: scroll; background: white; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
         .chat-input { margin-top: 15px; }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 <body>
     <div class="container chat-container">
@@ -28,7 +29,7 @@
             if (!userInput.trim()) return;
 
             const chatBox = document.getElementById('chat-box');
-            const userMessage = `<div class="text-right mb-2"><strong>You:</strong> ${userInput}</div>`;
+            const userMessage = `<div class="text-right mb-2"><strong>You:</strong> ${marked(userInput)}</div>`;
             chatBox.innerHTML += userMessage;
 
             history.push({ role: 'user', content: userInput });
@@ -46,7 +47,7 @@
                 if (response.ok) {
                     const data = await response.json();
                     const botMessageContent = data.choices[0].message.content;
-                    const botMessage = `<div class="text-left mb-2"><strong>Rio:</strong> ${botMessageContent}</div>`;
+                    const botMessage = `<div class="text-left mb-2"><strong>Rio:</strong> ${marked(botMessageContent)}</div>`;
                     chatBox.innerHTML += botMessage;
 
                     history.push({ role: 'assistant', content: botMessageContent });
