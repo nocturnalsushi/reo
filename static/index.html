@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rio Chatbot</title>
+    <style>
+        /* Add your Canva design styles here */
+    </style>
+</head>
+<body>
+    <div id="chatbox">
+        <div id="chatlog"></div>
+        <input type="text" id="usermsg" placeholder="Type a message...">
+        <button onclick="sendMessage()">Send</button>
+    </div>
+
+    <script>
+        async function sendMessage() {
+            const usermsg = document.getElementById('usermsg').value;
+            const response = await fetch('https://your-backend-url.onrender.com/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ message: usermsg })
+            });
+            const data = await response.json();
+            const assistantMessage = data.choices[0].message.content;
+
+            const chatlog = document.getElementById('chatlog');
+            chatlog.innerHTML += `<div>You: ${usermsg}</div>`;
+            chatlog.innerHTML += `<div>Rio: ${assistantMessage}</div>`;
+
+            document.getElementById('usermsg').value = '';
+        }
+    </script>
+</body>
+</html>
