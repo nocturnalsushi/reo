@@ -21,6 +21,8 @@
         </div>
     </div>
     <script>
+        const history = [];
+
         async function sendMessage() {
             const userInput = document.getElementById('user-input').value;
             if (!userInput.trim()) return;
@@ -29,21 +31,25 @@
             const userMessage = `<div class="text-right mb-2"><strong>You:</strong> ${userInput}</div>`;
             chatBox.innerHTML += userMessage;
 
+            history.push({ role: 'user', content: userInput });
             console.log('Sending message to backend:', userInput);
 
             try {
                 const response = await fetch('/chat', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message: userInput, history: [] })
+                    body: JSON.stringify({ message: userInput, history: history })
                 });
 
                 console.log('Response received from backend:', response);
 
                 if (response.ok) {
                     const data = await response.json();
-                    const botMessage = `<div class="text-left mb-2"><strong>Rio:</strong> ${data.choices[0].message.content}</div>`;
+                    const botMessageContent = data.choices[0].message.content;
+                    const botMessage = `<div class="text-left mb-2"><strong>Rio:</strong> ${botMessageContent}</div>`;
                     chatBox.innerHTML += botMessage;
+
+                    history.push({ role: 'assistant', content: botMessageContent });
                 } else {
                     console.error('Error response from backend:', response.status, response.statusText);
                     const errorMessage = `<div class="text-left mb-2"><strong>Rio:</strong> Sorry, there was an error processing your request.</div>`;
